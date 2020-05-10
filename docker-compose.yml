@@ -1,0 +1,32 @@
+version: '3.3'
+# To persist data in mysql. Docker will create a volume for you in the /var/lib/docker/volumes folder.
+volumes:
+  aemwp:
+  aemdb:
+
+services:
+  # build a Docker image based on the Dockerfile and map port 8000 on the host to port 80 inside the container. Then we pass the MySQL password via an environment variable
+  aemwp:
+    build: .
+    restart: always
+    ports:
+      - 8000:80
+    environment:
+      WORDPRESS_DB_HOST: aemdb
+      WORDPRESS_DB_USER: aemuser
+      WORDPRESS_DB_PASSWORD: password
+      WORDPRESS_DB_NAME: aemwpdb
+    volumes:
+      - aemwp:/var/www/html
+
+  # run the MySQL image from the Docker Hub in version 5.7
+  aemdb:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: aemwpdb
+      MYSQL_USER: aemuser
+      MYSQL_PASSWORD: password
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - aemdb:/var/lib/mysql
